@@ -1,0 +1,161 @@
+diff --git a/node_modules/@remix-run/dev/compiler.js b/node_modules/@remix-run/dev/compiler.js
+index 22c5ac0..8bd511b 100644
+--- a/node_modules/@remix-run/dev/compiler.js
++++ b/node_modules/@remix-run/dev/compiler.js
+@@ -28,8 +28,10 @@ var loaders = require('./compiler/loaders.js');
+ var mdx = require('./compiler/plugins/mdx.js');
+ var routes = require('./compiler/routes.js');
+ var fs$1 = require('./compiler/utils/fs.js');
++var alias = require('esbuild-plugin-alias');
++var NodeModulesPolyfillPlugin = require('@esbuild-plugins/node-modules-polyfill').NodeModulesPolyfillPlugin
+ 
+-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
++function _interopDefaultLegacy(e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+ 
+ function _interopNamespace(e) {
+   if (e && e.__esModule) return e;
+@@ -182,11 +184,11 @@ async function watch(config$1, {
+     }
+ 
+     await Promise.all([// If we get here and can't call rebuild something went wrong and we
+-    // should probably blow as it's not really recoverable.
+-    browserBuild.rebuild().then(build => generateManifests(config$1, build.metafile)), serverBuild.rebuild()]).catch(err => {
+-      disposeBuilders();
+-      onBuildFailure(err);
+-    });
++      // should probably blow as it's not really recoverable.
++      browserBuild.rebuild().then(build => generateManifests(config$1, build.metafile)), serverBuild.rebuild()]).catch(err => {
++        disposeBuilders();
++        onBuildFailure(err);
++      });
+     if (onRebuildFinish) onRebuildFinish();
+   }, 100);
+   let watcher = chokidar__default["default"].watch(config$1.appDirectory, {
+@@ -225,7 +227,7 @@ async function watch(config$1, {
+     }
+   });
+   return async () => {
+-    await watcher.close().catch(() => {});
++    await watcher.close().catch(() => { });
+     disposeBuilders();
+   };
+ }
+@@ -297,7 +299,7 @@ async function createBrowserBuild(config, options) {
+     platform: "browser",
+     format: "esm",
+     external: externals,
+-    inject: [reactShim],
++    inject: ['./process-shim.js', reactShim],
+     loader: loaders.loaders,
+     bundle: true,
+     logLevel: "silent",
+@@ -311,9 +313,16 @@ async function createBrowserBuild(config, options) {
+     assetNames: "_assets/[name]-[hash]",
+     publicPath: config.publicPath,
+     define: {
+-      "process.env.NODE_ENV": JSON.stringify(options.mode)
++      "process.env.NODE_ENV": JSON.stringify(options.mode),
++      __dirname: JSON.stringify(__dirname),
+     },
+-    plugins: [mdx.mdxPlugin(config), browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/)]
++    plugins: [
++      NodeModulesPolyfillPlugin(),
++      alias({
++        '@prisma/client': require.resolve('@prisma/client'),
++      }),
++      mdx.mdxPlugin(config), browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/)
++    ]
+   });
+ }
+ 
+@@ -328,7 +337,7 @@ async function createServerBuild(config, options) {
+     platform: "node",
+     format: "cjs",
+     target: options.target,
+-    inject: [reactShim],
++    inject: ['./process-shim.js', reactShim],
+     loader: loaders.loaders,
+     bundle: true,
+     logLevel: "silent",
+@@ -338,26 +347,34 @@ async function createServerBuild(config, options) {
+     // of CSS and other files.
+     assetNames: "_assets/[name]-[hash]",
+     publicPath: config.publicPath,
+-    plugins: [mdx.mdxPlugin(config), serverRouteModulesPlugin(config), emptyModulesPlugin(config, /\.client(\.[jt]sx?)?$/), manualExternalsPlugin((id, importer) => {
+-      // assets.json is external because this build runs in parallel with the
+-      // browser build and it's not there yet.
+-      if (id === "./assets.json" && importer === "<stdin>") return true; // Mark all bare imports as external. They will be require()'d at
+-      // runtime from node_modules.
+-
+-      if (isBareModuleId(id)) {
+-        let packageName = getNpmPackageName(id);
+-
+-        if (!/\bnode_modules\b/.test(importer) && !module$1.builtinModules.includes(packageName) && !dependencies$1.includes(packageName)) {
+-          options.onWarning(`The path "${id}" is imported in ` + `${path__namespace.relative(process.cwd(), importer)} but ` + `${packageName} is not listed in your package.json dependencies. ` + `Did you forget to install it?`, packageName);
+-        } // allow importing css files for bundling / hashing from node_modules.
+-
+-
+-        if (id.endsWith(".css")) return false;
+-        return true;
+-      }
++    define: {
++      __dirname: JSON.stringify(__dirname),
++    },
++    plugins: [
++      NodeModulesPolyfillPlugin(),
++      alias({
++        '@prisma/client': require.resolve('@prisma/client'),
++      }),
++      mdx.mdxPlugin(config), serverRouteModulesPlugin(config), emptyModulesPlugin(config, /\.client(\.[jt]sx?)?$/), manualExternalsPlugin((id, importer) => {
++        // assets.json is external because this build runs in parallel with the
++        // browser build and it's not there yet.
++        if (id === "./assets.json" && importer === "<stdin>") return true; // Mark all bare imports as external. They will be require()'d at
++        // runtime from node_modules.
++
++        if (isBareModuleId(id)) {
++          let packageName = getNpmPackageName(id);
++
++          if (!/\bnode_modules\b/.test(importer) && !module$1.builtinModules.includes(packageName) && !dependencies$1.includes(packageName)) {
++            options.onWarning(`The path "${id}" is imported in ` + `${path__namespace.relative(process.cwd(), importer)} but ` + `${packageName} is not listed in your package.json dependencies. ` + `Did you forget to install it?`, packageName);
++          } // allow importing css files for bundling / hashing from node_modules.
++
++
++          if (id.endsWith(".css")) return false;
++          return true;
++        }
+ 
+-      return false;
+-    })]
++        return false;
++      })]
+   });
+ }
+ 
+@@ -490,9 +507,9 @@ function emptyModulesPlugin(config, filter) {
+         let resolved = path__namespace.resolve(args.resolveDir, args.path);
+ 
+         if ( // Limit this behavior to modules found in only the `app` directory.
+-        // This allows node_modules to use the `.server.js` and `.client.js`
+-        // naming conventions with different semantics.
+-        resolved.startsWith(config.appDirectory)) {
++          // This allows node_modules to use the `.server.js` and `.client.js`
++          // naming conventions with different semantics.
++          resolved.startsWith(config.appDirectory)) {
+           return {
+             path: args.path,
+             namespace: "empty-module"
+diff --git a/node_modules/@remix-run/dev/process-shim.js b/node_modules/@remix-run/dev/process-shim.js
+new file mode 100644
+index 0000000..2ebd483
+--- /dev/null
++++ b/node_modules/@remix-run/dev/process-shim.js
+@@ -0,0 +1,8 @@
++export var process = {
++  env: new Proxy(
++    {},
++    {
++      get: () => '',
++    }
++  ),
++};
+\ No newline at end of file
