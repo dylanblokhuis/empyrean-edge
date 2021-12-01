@@ -7,8 +7,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = "mysql://4frwhu1st5h5:pscale_pw_vRen1XqW0_vtgfjjhtnWXm4tWcVFqaaev1Qstlb1mHg@2yr2i0ufhkx6.us-east-4.psdb.cloud/empyrean-edge?sslaccept=strict"
 }
 
 model User {
