@@ -34,20 +34,27 @@ export let meta: MetaFunction = () => {
 
 // https://remix.run/guides/routing#index-routes
 export default function Index() {
-  const data = useLoaderData<User[]>();
+  const data = useLoaderData<User[] | undefined>();
+
+  console.log(data);
 
   return (
     <div className="remix__page">
       <main>
         <h2 className="text-red-600">Welcome to Remix!</h2>
 
-        Users:
+        {data && Array.isArray(data) && (
+          <>
+            Users:
 
-        <div>
-          {data.map(user => (
-            <p key={user.id}>{user.name}</p>
-          ))}
-        </div>
+            <div>
+              {data.map(user => (
+                <p key={user.id}>{user.name}</p>
+              ))}
+            </div>
+          </>
+        )}
+
 
         <Form method="post">
           <button type="submit">Create new user!</button>

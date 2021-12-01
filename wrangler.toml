@@ -1,4 +1,4 @@
-name = "remix-cloudflare-workers"
+name = "remix-cloudflare-workers-prisma"
 type = "javascript"
 
 zone_id = ""
