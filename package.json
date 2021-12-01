@@ -6,7 +6,7 @@
   "scripts": {
     "build": "remix build",
     "dev": "remix watch",
-    "postinstall": "remix setup cloudflare-workers",
+    "postinstall": "remix setup cloudflare-workers && patch-package",
     "build:worker": "esbuild --define:process.env.NODE_ENV='\"production\"' --minify --bundle --sourcemap --outdir=dist ./worker",
     "dev:worker": "esbuild --define:process.env.NODE_ENV='\"development\"' --bundle --sourcemap --outdir=dist ./worker",
     "start": "miniflare --build-command \"npm run dev:worker\" --watch",
@@ -22,6 +22,7 @@
     "remix": "^1.0.6",
     "remix-auth": "^2.5.0-0",
     "remix-validated-form": "^1.1.1",
+    "uuid": "^8.3.2",
     "yup": "^0.32.11"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@remix-run/dev": "^1.0.6",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
+    "@types/uuid": "^8.3.3",
     "esbuild": "0.13.14",
     "esbuild-plugin-alias": "^0.2.1",
     "miniflare": "2.0.0-next.3",
