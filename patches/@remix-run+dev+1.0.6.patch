@@ -1,5 +1,5 @@
 diff --git a/node_modules/@remix-run/dev/compiler.js b/node_modules/@remix-run/dev/compiler.js
-index 22c5ac0..8bd511b 100644
+index 22c5ac0..cf6b590 100644
 --- a/node_modules/@remix-run/dev/compiler.js
 +++ b/node_modules/@remix-run/dev/compiler.js
 @@ -28,8 +28,10 @@ var loaders = require('./compiler/loaders.js');
@@ -14,7 +14,15 @@ index 22c5ac0..8bd511b 100644
  
  function _interopNamespace(e) {
    if (e && e.__esModule) return e;
-@@ -182,11 +184,11 @@ async function watch(config$1, {
+@@ -58,6 +60,7 @@ var chokidar__default = /*#__PURE__*/_interopDefaultLegacy(chokidar);
+ // as a source file when building the app.
+ 
+ const reactShim = path__namespace.resolve(__dirname, "compiler/shims/react.ts");
++const processShim = path__namespace.resolve(__dirname, "compiler/shims/process-shim.ts");
+ 
+ function defaultWarningHandler(message, key) {
+   warnings.warnOnce(false, message, key);
+@@ -182,11 +185,11 @@ async function watch(config$1, {
      }
  
      await Promise.all([// If we get here and can't call rebuild something went wrong and we
@@ -31,7 +39,7 @@ index 22c5ac0..8bd511b 100644
      if (onRebuildFinish) onRebuildFinish();
    }, 100);
    let watcher = chokidar__default["default"].watch(config$1.appDirectory, {
-@@ -225,7 +227,7 @@ async function watch(config$1, {
+@@ -225,7 +228,7 @@ async function watch(config$1, {
      }
    });
    return async () => {
@@ -40,16 +48,7 @@ index 22c5ac0..8bd511b 100644
      disposeBuilders();
    };
  }
-@@ -297,7 +299,7 @@ async function createBrowserBuild(config, options) {
-     platform: "browser",
-     format: "esm",
-     external: externals,
--    inject: [reactShim],
-+    inject: ['./process-shim.js', reactShim],
-     loader: loaders.loaders,
-     bundle: true,
-     logLevel: "silent",
-@@ -311,9 +313,16 @@ async function createBrowserBuild(config, options) {
+@@ -311,9 +314,16 @@ async function createBrowserBuild(config, options) {
      assetNames: "_assets/[name]-[hash]",
      publicPath: config.publicPath,
      define: {
@@ -68,16 +67,16 @@ index 22c5ac0..8bd511b 100644
    });
  }
  
-@@ -328,7 +337,7 @@ async function createServerBuild(config, options) {
+@@ -328,7 +338,7 @@ async function createServerBuild(config, options) {
      platform: "node",
      format: "cjs",
      target: options.target,
 -    inject: [reactShim],
-+    inject: ['./process-shim.js', reactShim],
++    inject: [reactShim, processShim],
      loader: loaders.loaders,
      bundle: true,
      logLevel: "silent",
-@@ -338,26 +347,34 @@ async function createServerBuild(config, options) {
+@@ -338,26 +348,34 @@ async function createServerBuild(config, options) {
      // of CSS and other files.
      assetNames: "_assets/[name]-[hash]",
      publicPath: config.publicPath,
@@ -131,7 +130,7 @@ index 22c5ac0..8bd511b 100644
    });
  }
  
-@@ -490,9 +507,9 @@ function emptyModulesPlugin(config, filter) {
+@@ -490,9 +508,9 @@ function emptyModulesPlugin(config, filter) {
          let resolved = path__namespace.resolve(args.resolveDir, args.path);
  
          if ( // Limit this behavior to modules found in only the `app` directory.
@@ -144,18 +143,15 @@ index 22c5ac0..8bd511b 100644
            return {
              path: args.path,
              namespace: "empty-module"
-diff --git a/node_modules/@remix-run/dev/process-shim.js b/node_modules/@remix-run/dev/process-shim.js
+diff --git a/node_modules/@remix-run/dev/compiler/shims/process-shim.ts b/node_modules/@remix-run/dev/compiler/shims/process-shim.ts
 new file mode 100644
-index 0000000..2ebd483
+index 0000000..7adfcbf
 --- /dev/null
-+++ b/node_modules/@remix-run/dev/process-shim.js
-@@ -0,0 +1,8 @@
++++ b/node_modules/@remix-run/dev/compiler/shims/process-shim.ts
+@@ -0,0 +1,5 @@
 +export var process = {
-+  env: new Proxy(
-+    {},
-+    {
-+      get: () => '',
-+    }
-+  ),
++  env: {
++    NODE_ENV: "development"
++  }
 +};
 \ No newline at end of file

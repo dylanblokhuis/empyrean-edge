@@ -10,7 +10,7 @@ import {
 } from "remix";
 import type { LinksFunction } from "remix";
 
-import globalStylesUrl from "~/styles/app.css";
+import globalStylesUrl from "~/styles/global.css";
 
 // https://remix.run/api/app#links
 export let links: LinksFunction = () => {
