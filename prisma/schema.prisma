@@ -45,7 +45,7 @@ enum PostStatus {
 
 model PostType {
   id        String   @id @default(uuid())
-  slug      String
+  slug      String   @unique
   plural    String
   singular  String
   createdAt DateTime @default(now())

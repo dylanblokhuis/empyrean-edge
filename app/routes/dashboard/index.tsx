@@ -1,11 +1,4 @@
 import { MetaFunction, LoaderFunction, ActionFunction, useLoaderData, Form } from "remix";
-import { authenticator } from "~/utils/auth.server";
-
-export let loader: LoaderFunction = async ({ request }) => {
-  return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
-};
 
 // https://remix.run/api/conventions#meta
 export let meta: MetaFunction = () => {
