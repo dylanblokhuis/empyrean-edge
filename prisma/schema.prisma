@@ -18,4 +18,38 @@ model User {
   email    String @unique
   name     String
   password String
+  Post     Post[]
+}
+
+model Post {
+  id         String     @id @default(uuid())
+  userId     String
+  title      String
+  content    String     @db.LongText
+  excerpt    String     @db.LongText
+  status     PostStatus
+  slug       String
+  postTypeId String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now()) @updatedAt
+
+  author   User     @relation(fields: [userId], references: [id])
+  postType PostType @relation(fields: [postTypeId], references: [id])
+}
+
+enum PostStatus {
+  PUBLISHED
+  DRAFT
+  TRASHED
+}
+
+model PostType {
+  id        String   @id @default(uuid())
+  slug      String
+  plural    String
+  singular  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Post Post[]
 }

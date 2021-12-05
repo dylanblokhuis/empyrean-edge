@@ -14,14 +14,14 @@ authenticator.use(
     // body in case of a POST request
     { loginURL: "/login", usernameField: "email" },
     async (email, password) => {
-      const user = await db.user.findUnique({
+      const user = await db.user.findFirst({
         where: {
-          email: email
+          email: email,
         }
       });
 
-      if (!user) throw new AuthorizationError("No user found");
-      if (user.password === password) throw new AuthorizationError("No matching password");
+      if (!user) throw new Error("No user found");
+      if (user.password !== password) throw new Error("No matching password");      
 
       return user;
     }
