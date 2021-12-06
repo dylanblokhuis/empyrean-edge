@@ -1,5 +1,5 @@
 import db, { User } from "~/utils/db.server";
-import { Authenticator, AuthorizationError, LocalStrategy } from "remix-auth";
+import { Authenticator, LocalStrategy } from "remix-auth";
 import { sessionStorage } from "~/utils/session.server";
 
 // Create an instance of the authenticator, pass a generic with what your

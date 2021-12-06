@@ -6,5 +6,10 @@ module.exports = {
   browserBuildDirectory: "public/build",
   publicPath: "/build/",
   serverBuildDirectory: "build",
-  devServerBroadcastDelay: 1000
+  devServerBroadcastDelay: 1000,
+  routes(defineRoutes) {
+    return defineRoutes(route => {
+      route("/*", "all.tsx");
+    });
+  }
 };

@@ -19,7 +19,6 @@ export let loader: LoaderFunction = async ({ request }) => {
 
 export default function Login() {
   const error = useActionData();
-  console.log(error);
 
   return (
     <Form method="post" className="flex flex-col items-center max-w-xs my-5 mx-auto">

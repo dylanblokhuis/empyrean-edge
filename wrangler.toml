@@ -1,6 +1,6 @@
 name = "remix-cloudflare-workers-prisma"
 type = "javascript"
-
+compatibility_date = "2021-12-05"
 zone_id = ""
 account_id = ""
 route = ""
@@ -16,3 +16,12 @@ watch_dir = "build/index.js"
 
 [build.upload]
 format="service-worker"
+
+[vars]
+ENVIRONMENT = "development"
+APP_SECRET = "6CjMLUaSHWM6kPupioMQzI#77wGnZ@2K4#!oY#PMowUetP1"
+DATABASE_URL = "prisma://aws-us-east-1.prisma-data.com/?api_key=h2sZgv5QJF9tEbDzTsv5_TQA6Eedc-I0gSL55jj7n8IXD77GOAPiXgSQCTC1_Lhf"
+PRISMA_CLIENT_ENGINE_TYPE = "dataproxy"
+
+[env.production.vars]
+ENVIRONMENT = "production"
