@@ -2,50 +2,73 @@ import { LoaderFunction, useLoaderData, redirect } from "remix"
 import db, { Post } from "./utils/db.server";
 import UrlPattern from "url-pattern";
 
-export let loader: LoaderFunction = async ({ params }) => {
-  const route = params['*']
+export let loader: LoaderFunction = async ({ params, request }) => {
+  /**
+   * Check if page is cached
+   */
+  const cache = await caches.default;
+  const cacheUrl = new URL(request.url);
+  const cacheKey = new Request(cacheUrl.toString(), request);
+  const cachedResponse = await cache.match(cacheKey)
 
-  if (!route) throw new Error("This shouldnt happen")
+  if (cachedResponse) {
+    return cachedResponse
+  }
 
+  /**
+   * Get the first matching post type
+   */
+  const route = `/` + (params['*'] || "")
   const postTypes = await db.postType.findMany();
-
-  const firstMatch = postTypes.find(postType => {
+  const postType = postTypes.find(postType => {
     if (postType.basePath) {
-      const pattern = new UrlPattern(`${postType.basePath}(/:slug)`);
+      const pattern = new UrlPattern(`${postType.basePath}:slug`);
       return pattern.match(route) !== null;
     }
 
     return true
   });
+  if (!postType) return redirect("/404")
 
-  console.log(firstMatch);
+  if (route === "/home") {
+    return redirect("/")
+  }
 
-  const page = await db.post.findFirst({
+  /**
+   * Find the first post associated with the post type
+   */
+  const post = await db.post.findFirst({
     where: {
-      slug: route,
-      postType: {
-        OR: [{
-          slug: "posts"
-        }, {
-          slug: "pages"
-        }]
-      }
+      slug: route === "/" ? "home" : route.replace(postType.basePath || "/", ""),
+      postTypeId: postType.id
     }
-  })
+  });
 
-  if (!page) {
+  if (!post) {
     return redirect("/404");
   }
 
-  return page
+  /**
+   * Cache the response for 10 seconds
+   */
+  const response = new Response(JSON.stringify(post), {
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  response.headers.append("Cache-Control", "s-maxage=10")
+  await cache.put(cacheKey, response.clone())
+
+  return response;
 }
 
 export default function all() {
-  const page = useLoaderData<Post>();
+  const post = useLoaderData<Post>();
+
   return (
     <div>
-      <h1>{page.title}</h1>
-
+      <h1>{post?.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: post?.content }} />
     </div>
   )
 }
