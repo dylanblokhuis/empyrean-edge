@@ -1,10 +1,10 @@
-name = "remix-cloudflare-workers-prisma"
+name = "empyrean"
 type = "javascript"
 compatibility_date = "2021-12-05"
-zone_id = ""
-account_id = ""
-route = ""
-workers_dev = true
+zone_id = "7d8c5620951c1a7632ae394f20d32552"
+account_id = "d755de6aadd5a8cf6186a0a3ea864baa"
+route = "*empyrean.blokhuis.dev/*"
+workers_dev = false
 
 [site]
 bucket = "./public"

@@ -24,7 +24,7 @@ export default function DashboardLayout() {
 
       <div className="flex h-full">
         <aside className="bg-gray-800 w-full max-w-[200px] flex-none p-4 text-white border-t border-gray-700">
-          <div className="flex flex-col">
+          <div className="flex flex-col mb-6">
             <span className="text-sm font-semibold mb-2 uppercase text-gray-400">Post types</span>
 
             <ul>
@@ -38,8 +38,20 @@ export default function DashboardLayout() {
             </ul>
           </div>
 
+          <div className="flex flex-col">
+            <span className="text-sm font-semibold mb-2 uppercase text-gray-400">Settings</span>
+
+            <ul>
+              <li className="mb-1">
+                <Link to="/dashboard/settings/post-types">
+                  Post types
+                </Link>
+              </li>
+            </ul>
+          </div>
+
         </aside>
-        <main className="w-full">
+        <main className="w-full py-4 px-6">
           <Outlet />
         </main>
       </div>

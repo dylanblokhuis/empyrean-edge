@@ -34,7 +34,7 @@ model Post {
   updatedAt  DateTime   @default(now()) @updatedAt
 
   author   User     @relation(fields: [userId], references: [id])
-  postType PostType @relation(fields: [postTypeId], references: [id])
+  postType PostType @relation(fields: [postTypeId], references: [id], onDelete: Restrict)
 }
 
 enum PostStatus {

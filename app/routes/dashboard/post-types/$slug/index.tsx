@@ -43,22 +43,22 @@ export default function DashboardPostTypesSlugRoute() {
   }>();
 
   return (
-    <div className="px-4 py-3">
+    <div>
       <h1 className="mb-4">{postType.plural}</h1>
 
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-100">
+      <table>
+        <thead>
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col">
               Title
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col">
               Author
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col">
               Status
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th scope="col">
               Date
             </th>
             <th scope="col" className="relative px-6 py-3">
@@ -66,29 +66,29 @@ export default function DashboardPostTypesSlugRoute() {
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody>
           {postType.Post.map(post => (
             <tr key={post.id}>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td>
                 <div className="text-sm font-medium text-gray-900">
                   {post.title}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td>
                 <div className="text-sm text-gray-900">{post.author.name}</div>
                 <div className="text-sm text-gray-500">Admin</div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">
+              <td>
                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                   {post.status === "PUBLISHED" && "Published"}
                   {post.status === "DRAFT" && "Draft"}
                   {post.status === "TRASHED" && "Trashed"}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="text-sm text-gray-500">
                 {post.createdAt}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td className="text-right text-sm font-medium">
                 <Link to={`/dashboard/post-types/posts/${post.id}`} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
               </td>
             </tr>
