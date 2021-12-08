@@ -89,7 +89,7 @@ export default function DashboardPostTypesSlugRoute() {
                 {post.createdAt}
               </td>
               <td className="text-right text-sm font-medium">
-                <Link to={`/dashboard/post-types/posts/${post.id}`} className="text-indigo-600 hover:text-indigo-900">Edit</Link>
+                <Link to={`/dashboard/post-types/posts/${post.id}`} className="link">Edit</Link>
               </td>
             </tr>
           ))}

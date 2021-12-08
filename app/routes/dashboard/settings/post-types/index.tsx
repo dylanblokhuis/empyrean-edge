@@ -47,7 +47,11 @@ export default function SettingsPostTypesRoute() {
               <td>{postType.slug}</td>
               <td>{postType.basePath}</td>
               <td>{postType.createdAt}</td>
-              <td>Edit</td>
+              <td>
+                <Link className="link" to={`/dashboard/settings/post-types/${postType.slug}/edit`}>
+                  Edit
+                </Link>
+              </td>
             </tr>
           ))}
         </tbody>

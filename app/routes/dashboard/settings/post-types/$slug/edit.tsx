@@ -1,9 +1,9 @@
-import { ActionFunction, redirect, useActionData } from "remix"
+import { ActionFunction, LoaderFunction, redirect, useActionData, useLoaderData, useTransition } from "remix"
 import * as yup from "yup"
 import { validationError, ValidatedForm, withYup } from "remix-validated-form";
 
 import Input from "~/components/form/Input";
-import db from "~/utils/db.server";
+import db, { PostType } from "~/utils/db.server";
 import SubmitButton from "~/components/form/SubmitButton";
 
 const validator = withYup(
@@ -22,18 +22,11 @@ export const action: ActionFunction = async ({ request }) => {
   if (fieldValues.error) return validationError(fieldValues.error);
   const { slug, plural, singular, basePath } = fieldValues.data;
 
-  const exists = await db.postType.findUnique({
-    where: {
-      slug: slug
-    }
-  })
-
-  if (exists) {
-    return { generalError: "A post type already exists with this slug" }
-  }
-
   try {
-    await db.postType.create({
+    await db.postType.update({
+      where: {
+        slug: slug
+      },
       data: {
         slug,
         plural,
@@ -49,15 +42,35 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
+export let loader: LoaderFunction = async ({ params }) => {
+  const slug = params['slug']
 
-export default function SettingsPostTypesCreateRoute() {
+  if (!slug) throw new Error("An error occured")
+
+  const postType = await db.postType.findUnique({
+    where: {
+      slug: slug
+    }
+  })
+
+  return postType
+}
+
+
+export default function SettingsPostTypesEditRoute() {
   const actionData = useActionData<{ generalError?: string }>();
+  const loaderData = useLoaderData<PostType>()
 
   return (
     <div>
-      <h1 className="mb-4">Create post type</h1>
+      <h1 className="mb-4">Edit post type: {loaderData.plural}</h1>
 
-      <ValidatedForm validator={validator} method="post" className="flex flex-col w-full max-w-lg">
+      <ValidatedForm defaultValues={{
+        slug: loaderData.slug,
+        plural: loaderData.plural,
+        singular: loaderData.singular,
+        basePath: loaderData.basePath !== null ? loaderData.basePath : undefined,
+      }} validator={validator} method="post" className="flex flex-col w-full max-w-lg">
         <Input className="mb-4 w-full" type="text" name="slug" label="Slug" required />
         <Input className="mb-4 w-full" type="text" name="plural" label="Name plural" required />
         <Input className="mb-4 w-full" type="text" name="singular" label="Name singular" required />
@@ -71,7 +84,7 @@ export default function SettingsPostTypesCreateRoute() {
 
         <div>
           <SubmitButton className="mt-2">
-            Create
+            Save
           </SubmitButton>
         </div>
 
