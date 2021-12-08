@@ -1,7 +1,7 @@
 import { LoaderFunction, ErrorBoundaryComponent, useLoaderData, Link } from "remix";
 import db, { Post, PostType, User } from "~/utils/db.server";
 
-export let loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const slug = params.slug;
   const postType = await db.postType.findUnique({
     where: {
@@ -25,7 +25,7 @@ export let loader: LoaderFunction = async ({ request, params }) => {
   return postType
 };
 
-export let ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
+export const ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   return (
     <div className="flex flex-col items-center self-center mt-10">
       <h1 className="text-xl mb-0">Oh no :(</h1>
@@ -35,12 +35,14 @@ export let ErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   );
 }
 
+type LoaderData = PostType & {
+  Post: (Post & {
+    author: User;
+  })[];
+}
+
 export default function DashboardPostTypesSlugRoute() {
-  const postType = useLoaderData<PostType & {
-    Post: (Post & {
-      author: User;
-    })[];
-  }>();
+  const postType = useLoaderData<LoaderData>();
 
   return (
     <div>

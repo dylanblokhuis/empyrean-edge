@@ -42,7 +42,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-export let loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({ params }) => {
   const slug = params['slug']
 
   if (!slug) throw new Error("An error occured")
@@ -56,6 +56,9 @@ export let loader: LoaderFunction = async ({ params }) => {
   return postType
 }
 
+export const handle = {
+  breadcrumb: "Edit"
+};
 
 export default function SettingsPostTypesEditRoute() {
   const actionData = useActionData<{ generalError?: string }>();

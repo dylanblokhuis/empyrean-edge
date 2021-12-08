@@ -1,7 +1,7 @@
-import { MetaFunction, LoaderFunction, ActionFunction, useLoaderData, Form } from "remix";
+import { MetaFunction, Link } from "remix";
 
 // https://remix.run/api/conventions#meta
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return {
     title: "Dashboard",
   };

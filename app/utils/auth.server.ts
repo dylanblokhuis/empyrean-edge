@@ -4,7 +4,7 @@ import { sessionStorage } from "~/utils/session.server";
 
 // Create an instance of the authenticator, pass a generic with what your
 // strategies will return and will be stored in the session
-export let authenticator = new Authenticator<User>(sessionStorage);
+export const authenticator = new Authenticator<User>(sessionStorage);
 
 // Add the local strategy
 authenticator.use(

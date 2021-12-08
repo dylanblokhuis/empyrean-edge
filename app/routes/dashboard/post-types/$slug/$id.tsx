@@ -2,7 +2,11 @@ import { MutableRefObject, useRef } from "react";
 import { LoaderFunction, ActionFunction, useLoaderData, LinksFunction, useFetcher, Form } from "remix";
 import db, { Post, User } from "~/utils/db.server";
 
-export let loader: LoaderFunction = async ({ request, params }) => {
+export const handle = {
+  breadcrumb: "Editing post"
+};
+
+export const loader: LoaderFunction = async ({ request, params }) => {
   const id = params.id;
   const post = await db.post.findUnique({
     where: {
@@ -22,7 +26,7 @@ export let loader: LoaderFunction = async ({ request, params }) => {
   return post;
 };
 
-export let action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   const data = await request.formData();
 
   console.log(data.get("content"));

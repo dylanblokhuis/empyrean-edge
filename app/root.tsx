@@ -13,7 +13,7 @@ import type { LinksFunction } from "remix";
 import globalStylesUrl from "~/styles/global.css";
 
 // https://remix.run/api/app#links
-export let links: LinksFunction = () => {
+export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" },
     { rel: "stylesheet", href: globalStylesUrl }

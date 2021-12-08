@@ -2,7 +2,7 @@ import { LoaderFunction, useLoaderData, redirect } from "remix"
 import db, { Post } from "./utils/db.server";
 import UrlPattern from "url-pattern";
 
-export let loader: LoaderFunction = async ({ params, request }) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
   /**
    * Check if page is cached
    */

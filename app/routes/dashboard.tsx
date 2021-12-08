@@ -3,7 +3,7 @@ import Breadcrumb from "~/components/general/Breadcrumb";
 import { authenticator } from "~/utils/auth.server";
 import db, { PostType } from "~/utils/db.server";
 
-export let loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
@@ -14,10 +14,9 @@ export let loader: LoaderFunction = async ({ request }) => {
 };
 
 export const handle = {
-  breadcrumb: () => (
-    <Link to="/parent/child">Child Route</Link>
-  )
+  breadcrumb: "Dashboard"
 };
+
 export default function DashboardLayout() {
   const { postTypes } = useLoaderData<{ postTypes: PostType[] }>();
 

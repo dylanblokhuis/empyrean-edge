@@ -49,6 +49,9 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
+export const handle = {
+  breadcrumb: "New"
+};
 
 export default function SettingsPostTypesCreateRoute() {
   const actionData = useActionData<{ generalError?: string }>();

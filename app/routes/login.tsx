@@ -1,7 +1,7 @@
 import { ActionFunction, Form, LoaderFunction, redirect, useActionData } from "remix";
 import { authenticator } from "~/utils/auth.server";
 
-export let action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   // Authenticate the request, after that it will redirect to the defined URLs
   // and set the user in the session if it's a success
   await authenticator.authenticate("local", request, {
@@ -10,7 +10,7 @@ export let action: ActionFunction = async ({ request }) => {
   });
 };
 
-export let loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   // If the user is already authenticated redirect to /dashboard directly
   return await authenticator.isAuthenticated(request, {
     successRedirect: "/dashboard",

@@ -1,7 +1,7 @@
 import { Link, LoaderFunction, useLoaderData } from "remix"
 import db, { PostType } from "~/utils/db.server";
 
-export let loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async () => {
   const postTypes = await db.postType.findMany();
 
   return postTypes
