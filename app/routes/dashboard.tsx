@@ -1,4 +1,5 @@
-import { Outlet, LoaderFunction, useLoaderData, Link, ErrorBoundaryComponent } from "remix";
+import { Outlet, LoaderFunction, useLoaderData, Link, ErrorBoundaryComponent, useMatches } from "remix";
+import Breadcrumb from "~/components/general/Breadcrumb";
 import { authenticator } from "~/utils/auth.server";
 import db, { PostType } from "~/utils/db.server";
 
@@ -12,8 +13,14 @@ export let loader: LoaderFunction = async ({ request }) => {
   return { postTypes };
 };
 
+export const handle = {
+  breadcrumb: () => (
+    <Link to="/parent/child">Child Route</Link>
+  )
+};
 export default function DashboardLayout() {
   const { postTypes } = useLoaderData<{ postTypes: PostType[] }>();
+
   return (
     <div className="dashboard-layout h-full">
       <nav className="w-full bg-gray-800 text-white py-2 px-3 text-sm">
@@ -52,6 +59,7 @@ export default function DashboardLayout() {
 
         </aside>
         <main className="w-full py-4 px-6">
+          <Breadcrumb />
           <Outlet />
         </main>
       </div>
