@@ -1,29 +1,19 @@
 diff --git a/node_modules/@remix-run/dev/compiler.js b/node_modules/@remix-run/dev/compiler.js
-index d1052c3..572915e 100644
+index f6526c6..b71561c 100644
 --- a/node_modules/@remix-run/dev/compiler.js
 +++ b/node_modules/@remix-run/dev/compiler.js
-@@ -28,8 +28,10 @@ var loaders = require('./compiler/loaders.js');
+@@ -28,8 +28,9 @@ var loaders = require('./compiler/loaders.js');
  var mdx = require('./compiler/plugins/mdx.js');
  var routes = require('./compiler/routes.js');
  var fs$1 = require('./compiler/utils/fs.js');
 +var alias = require('esbuild-plugin-alias');
-+var NodeModulesPolyfillPlugin = require('@esbuild-plugins/node-modules-polyfill').NodeModulesPolyfillPlugin
  
 -function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 +function _interopDefaultLegacy(e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
  
  function _interopNamespace(e) {
    if (e && e.__esModule) return e;
-@@ -58,6 +60,8 @@ var chokidar__default = /*#__PURE__*/_interopDefaultLegacy(chokidar);
- // as a source file when building the app.
- 
- const reactShim = path__namespace.resolve(__dirname, "compiler/shims/react.ts");
-+const processShimDev = path__namespace.resolve(__dirname, "compiler/shims/process-shim-dev.ts");
-+const processShimProd = path__namespace.resolve(__dirname, "compiler/shims/process-shim-prod.ts");
- 
- function defaultWarningHandler(message, key) {
-   warnings.warnOnce(false, message, key);
-@@ -182,11 +186,11 @@ async function watch(config$1, {
+@@ -182,11 +183,11 @@ async function watch(config$1, {
      }
  
      await Promise.all([// If we get here and can't call rebuild something went wrong and we
@@ -40,7 +30,7 @@ index d1052c3..572915e 100644
      if (onRebuildFinish) onRebuildFinish();
    }, 100);
    let watcher = chokidar__default["default"].watch(config$1.appDirectory, {
-@@ -225,7 +229,7 @@ async function watch(config$1, {
+@@ -225,7 +226,7 @@ async function watch(config$1, {
      }
    });
    return async () => {
@@ -49,35 +39,20 @@ index d1052c3..572915e 100644
      disposeBuilders();
    };
  }
-@@ -311,9 +315,16 @@ async function createBrowserBuild(config, options) {
-     assetNames: "_assets/[name]-[hash]",
-     publicPath: config.publicPath,
+@@ -313,7 +314,11 @@ async function createBrowserBuild(config, options) {
      define: {
--      "process.env.NODE_ENV": JSON.stringify(options.mode)
-+      "process.env.NODE_ENV": JSON.stringify(options.mode),
-+      __dirname: JSON.stringify(__dirname),
+       "process.env.NODE_ENV": JSON.stringify(options.mode)
      },
 -    plugins: [mdx.mdxPlugin(config), browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/)]
 +    plugins: [
-+      NodeModulesPolyfillPlugin(),
 +      alias({
 +        '@prisma/client': require.resolve('@prisma/client'),
 +      }),
-+      mdx.mdxPlugin(config), browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/)
-+    ]
++      mdx.mdxPlugin(config), browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/)]
    });
  }
  
-@@ -328,7 +339,7 @@ async function createServerBuild(config, options) {
-     platform: "node",
-     format: "cjs",
-     target: options.target,
--    inject: [reactShim],
-+    inject: [reactShim, options.mode === "development" ? processShimDev : processShimProd],
-     loader: loaders.loaders,
-     bundle: true,
-     logLevel: "silent",
-@@ -338,26 +349,34 @@ async function createServerBuild(config, options) {
+@@ -338,26 +343,30 @@ async function createServerBuild(config, options) {
      // of CSS and other files.
      assetNames: "_assets/[name]-[hash]",
      publicPath: config.publicPath,
@@ -98,11 +73,7 @@ index d1052c3..572915e 100644
 -        if (id.endsWith(".css")) return false;
 -        return true;
 -      }
-+    define: {
-+      __dirname: JSON.stringify(__dirname),
-+    },
 +    plugins: [
-+      NodeModulesPolyfillPlugin(),
 +      alias({
 +        '@prisma/client': require.resolve('@prisma/client'),
 +      }),
@@ -131,7 +102,7 @@ index d1052c3..572915e 100644
    });
  }
  
-@@ -490,9 +509,9 @@ function emptyModulesPlugin(config, filter) {
+@@ -490,9 +499,9 @@ function emptyModulesPlugin(config, filter) {
          let resolved = path__namespace.resolve(args.resolveDir, args.path);
  
          if ( // Limit this behavior to modules found in only the `app` directory.
@@ -144,33 +115,3 @@ index d1052c3..572915e 100644
            return {
              path: args.path,
              namespace: "empty-module"
-diff --git a/node_modules/@remix-run/dev/compiler/shims/process-shim-dev.ts b/node_modules/@remix-run/dev/compiler/shims/process-shim-dev.ts
-new file mode 100644
-index 0000000..552fedf
---- /dev/null
-+++ b/node_modules/@remix-run/dev/compiler/shims/process-shim-dev.ts
-@@ -0,0 +1,8 @@
-+const globalShim = typeof global !== 'undefined' ? global : {}
-+
-+export var process = {
-+  env: {
-+    ...globalShim,
-+    NODE_ENV: "development"
-+  }
-+}
-\ No newline at end of file
-diff --git a/node_modules/@remix-run/dev/compiler/shims/process-shim-prod.ts b/node_modules/@remix-run/dev/compiler/shims/process-shim-prod.ts
-new file mode 100644
-index 0000000..b9703bc
---- /dev/null
-+++ b/node_modules/@remix-run/dev/compiler/shims/process-shim-prod.ts
-@@ -0,0 +1,8 @@
-+const globalShim = typeof global !== 'undefined' ? global : {}
-+
-+export var process = {
-+  env: {
-+    ...globalShim,
-+    NODE_ENV: "production"
-+  }
-+}
-\ No newline at end of file
