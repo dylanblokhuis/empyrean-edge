@@ -46,7 +46,13 @@ export default function DashboardPostTypesSlugRoute() {
 
   return (
     <div>
-      <h1 className="mb-4">{postType.plural}</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="mb-4">{postType.plural}</h1>
+
+        <Link className="button small" to={`/dashboard/post-types/${postType.slug}/create`}>
+          New {postType.singular}
+        </Link>
+      </div>
 
       <table>
         <thead>
